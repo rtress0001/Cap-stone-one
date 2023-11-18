@@ -213,9 +213,49 @@ summary_data$mental_health_history <- factor(summary_data$mental_health_history,
 #making a scatter plot of average academic performance by 
 ggplot(summary_data, aes(x = anxiety_level, y = mean_academic_performance, color = mental_health_history)) +
   geom_smooth() +
-  labs(title = "smooth line plot of Average Academic Performance by anxiety_level filtered by depression")
+  labs(title = "smooth of Ave Aca per by anxiety with depression>19")
 ```
 We see the relative pattern emerge again we don't gain any additional information from the graph
+
+```{r}
+summary_data <- data %>%
+  filter(anxiety_level > 19)
+  
+
+#covering data into a group by then averaging academic performance
+summary_data <- summary_data %>%
+  group_by(self_esteem, mental_health_history) %>%
+  summarize(mean_academic_performance = mean(academic_performance))
+
+#Converting has mental health history into a factor to prevent averaging
+summary_data$mental_health_history <- factor(summary_data$mental_health_history, labels = c("No History", "Has History"))
+
+
+#making a scatter plot of average academic performance by 
+ggplot(summary_data, aes(x = self_esteem, y = mean_academic_performance, color = mental_health_history)) +
+  geom_smooth() +
+  labs(title = "bar of Ave Aca per by anxiety with anxiety>19")
+```
+Its interesting to note that the data does not contain individuals with high scores anxiety and mental health history.
+```{r}
+summary_data <- data %>%
+  filter(depression > 19)
+  
+
+#covering data into a group by then averaging academic performance
+summary_data <- summary_data %>%
+  group_by(self_esteem, mental_health_history) %>%
+  summarize(mean_academic_performance = mean(academic_performance))
+
+#Converting has mental health history into a factor to prevent averaging
+summary_data$mental_health_history <- factor(summary_data$mental_health_history, labels = c("No History", "Has History"))
+
+
+#making a scatter plot of average academic performance by 
+ggplot(summary_data, aes(x = self_esteem, y = mean_academic_performance, color = mental_health_history)) +
+  geom_smooth() +
+  labs(title = "bar of Ave Aca per by anxiety with anxiety>19")
+```
 
 Displaying the count of self esteem is uniformly distrubeted thought the data
 ```{r}
@@ -241,14 +281,6 @@ as would expect higher self esteem results in higher scores, the error range is 
 does there exist people with high self_esteem and depression and anxiety
 ```{r}
 summary_data <- data %>%
-  filter(anxiety_level > 19, depression > 19)
-
-ggplot(summary_data, aes(x = self_esteem))+
-  geom_bar() +
-  labs(title = "Data count by self_esteem")
-```
-```{r}
-summary_data <- data %>%
   filter(anxiety_level > 19, depression > 19) %>%
   group_by(depression, academic_performance) %>%
   summarize(mean_academic_performance = mean(academic_performance))
@@ -257,6 +289,30 @@ ggplot(summary_data, aes(x = depression, y = mean_academic_performance))+
   geom_smooth() +
   labs(title = "Data count by self_esteem")
 ```
+```{r}
+summary_data <- data %>%
+  filter(anxiety_level > 19, depression > 19) %>%
+  group_by(self_esteem, academic_performance) %>%
+  summarize(mean_academic_performance = mean(academic_performance))
+
+ggplot(summary_data, aes(x = self_esteem, y = mean_academic_performance))+
+  geom_smooth() +
+  labs(title = "Data count by self_esteem")
+```
+
+```{r}
+summary_data <- data %>%
+  filter(anxiety_level > 19, depression > 19) %>%
+  group_by(basic_needs, academic_performance) %>%
+  summarize(mean_academic_performance = mean(academic_performance))
+
+ggplot(summary_data, aes(x = basic_needs, y = mean_academic_performance))+
+  geom_smooth() +
+  labs(title = "Data count by self_esteem")
+```
+This graph is a bit unusually that low score basic needs have higher scores, but we dont see any score 4 to 5.
+
+This people with 3 high scores in interfering factors have a start to predict failure. 
 The second stress factor has a higher likelihood of having below average grades by the group of grades
 
 does there exist people with high self_esteem and depression and anxiety
@@ -1156,3 +1212,84 @@ summary_data <- data %>%
   filter(academic_performance>3)
 count(summary_data)
 ```
+The count of student who succeed with 2 high scores of mental health
+
+```{r}
+summary_data <- data %>%
+  filter(academic_performance >= 4, depression > 19, anxiety_level > 19)
+
+count(summary_data)
+```
+We see two student succeed under these conditions.
+
+```{r}
+summary_data <- data %>%
+  filter(academic_performance >= 4, self_esteem < 11, anxiety_level > 19)
+
+count(summary_data)
+```
+The test for critical interference begins
+
+```{r}
+summary_data <- data %>%
+  filter(depression > 19, anxiety_level > 19)
+
+mean(summary_data$academic_performance)
+```
+We see two student succeed under these conditions.
+
+```{r}
+summary_data <- data %>%
+  filter(self_esteem < 11, anxiety_level > 19)
+
+mean(summary_data$academic_performance)
+```
+
+```{r}
+summary_data <- data %>%
+  filter(self_esteem < 11, mental_health_history > 1)
+
+mean(summary_data$academic_performance)
+```
+We see 3 students succed under these conditions.
+
+```{r}
+summary_data <- data %>%
+  filter(anxiety_level > 19, mental_health_history == 1)
+
+mean(summary_data$academic_performance)
+```
+
+```{r}
+summary_data <- data %>%
+  filter(depression > 19, mental_health_history == 1)
+
+mean(summary_data$academic_performance)
+```
+
+```{r}
+summary_data <- data %>%
+  filter(depression > 19, self_esteem < 11)
+
+mean(summary_data$academic_performance)
+```
+
+```{r}
+
+#Creating a filter for basic needs and depression above 15 to group by basic needs and mental health history
+summary_data <- data %>%
+  group_by(sleep_quality, mental_health_history) %>%
+  summarize(mean_academic_performance = mean(academic_performance))
+
+#Converting has mental health history into a factor to prevent averaging
+summary_data$mental_health_history <- factor(summary_data$mental_health_history, labels = c("No History", "Has History"))
+
+#creating a scatter plot of average academic performance group by basic needs fitler with high depress
+ggplot(summary_data, aes(x = sleep_quality, y = mean_academic_performance, color = mental_health_history))+
+  geom_smooth()+
+  labs(title = "Smooth line plot of Average Academic Performance by Sleep Quality")
+
+
+```
+
+This graph is very unusually, where a student might having to much sleep to conduct the ritual of learning.
